@@ -18,6 +18,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -25,12 +26,12 @@ import java.util.List;
 
 public class AdminActivity extends AppCompatActivity {
     private DatabaseReference mDatabase;
-    EditText prasanje, izbor1, izbor2, vreme;
+    private  DatabaseReference lastRef;
+    EditText prasanje, izbor1, vreme;
     Button addQuestion, addPoll;
-    List<Question> values = new ArrayList<Question>();
-    Integer k = 0;
-    Integer CountPolls;
+    List<Question> prasanja;
     String PollId;
+    Poll poll;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,63 +39,75 @@ public class AdminActivity extends AppCompatActivity {
         setContentView(R.layout.activity_admin);
 
 
-
+        prasanja = new ArrayList<Question>();
+        prasanja.clear();
         vreme = findViewById(R.id.inputTime);
         prasanje = findViewById(R.id.inputquestion);
         izbor1 = findViewById(R.id.inputanswer1);
-        izbor2 = findViewById(R.id.inputanswer2);
         addQuestion = findViewById(R.id.createquestion);
         addPoll = findViewById(R.id.addPoll);
-        mDatabase = FirebaseDatabase.getInstance("https://votingapp-b03ae-default-rtdb.europe-west1.firebasedatabase.app/").getReference();
-        mDatabase.child("Polls").addListenerForSingleValueEvent(new ValueEventListener() {
+        DatabaseReference lastRef = FirebaseDatabase.getInstance("https://votingapp-b03ae-default-rtdb.europe-west1.firebasedatabase.app/").getReference();
+        Query lastQuery = lastRef.child("Polls").orderByKey().limitToLast(1);
+        lastQuery.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                CountPolls = (int) dataSnapshot.getChildrenCount();
+                for(DataSnapshot data : dataSnapshot.getChildren())
+                {
 
+                    String key = data.getKey(); // then it has the value "4:"
+                    poll = new Poll();
+                    poll.setTitle(key);
+                }
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+            public void onCancelled(DatabaseError databaseError) {
 
-            }
-        });
+            }});
 
         addQuestion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //String question = prasanje.getText().toString();
-                String question = "Are you ok?";
-                String question2 = "Do you like pizza?";
-                List<String> answers = new ArrayList<>();
-                answers.add("Yes");
-                answers.add("No");
+                String tekst = prasanje.getText().toString();
+                Integer k = 0;
+                //<String> answers = new ArrayList<>();
+                //answers.add("Yes");
+                //answers.add("No");
 
-                if (question.isEmpty())
+                if (tekst.isEmpty())
                 {
                     prasanje.setError("Enter question.");
                 }
 
-                else if (!question.isEmpty())
+                else if (!tekst.isEmpty())
                 {
-                    String QuestionId = "Question" + k.toString();
-                    PollId = "Poll" + CountPolls.toString();
-                    k = k + 1;
-                    Question prasance = new Question(question, answers);
-                    Question prasanje2 = new Question(question2, answers);
-                    Poll prasalnik = new Poll();
 
-
-                    mDatabase.child("Polls").child(PollId).setValue(prasance).addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void unused) {
-                            Toast.makeText(AdminActivity.this, "DATA IS ADDED", Toast.LENGTH_SHORT).show();
+                    for (Question x: prasanja)
+                    {
+                        if(x.getQuestion().equals(tekst))
+                        {
+                            Integer i = prasanja.indexOf(x);
+                            List<String> answers = x.getAnswers();
+                            answers.add(izbor1.getText().toString());
+                            x.setAnswers(answers);
+                            prasanja.remove(i);
+                            prasanja.set(i,x);
+                            k = 1;
+                            break;
                         }
-                    });
 
-                    //values.add(prasance);
-                    prasanje.setText("");
+                    }
+                    if (k == 0)
+                    {
+                        Question prasance = new Question();
+                        prasance.setQuestion(tekst);
+                        List<String> answers = new ArrayList<>();
+                        answers.add(izbor1.getText().toString());
+                        prasance.setAnswers(answers);
+                        prasanja.add(prasance);
+                    }
+
                     izbor1.setText("");
-                    izbor2.setText("");
                 }
             }
         });
@@ -109,23 +122,11 @@ public class AdminActivity extends AppCompatActivity {
                 }
                 else
                 {
-                    String question = "Do you like music?";
-                    String question2 = "Do you like art?";
-                    List<String> answers = new ArrayList<>();
-                    answers.add("Yes");
-                    answers.add("No");
+                    PollId = poll.getTitle();
+                    Poll prasalnik = new Poll(prasanja, time, PollId);
 
-                    Question prasance = new Question(question, answers);
-                    Question prasanje2 = new Question(question2, answers);
-                    List<Question> prasanja = new ArrayList<>();
-                    prasanja.add(prasance);
-                    prasanja.add(prasanje2);
-                    time = "07:02:03";
-                    String title = "Vtor";
-                    Poll prasalnik = new Poll(prasanja, time, title);
-                    PollId = "Poll" + CountPolls.toString();
 
-                    mDatabase.child("Polls").child(title).setValue(prasalnik).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    lastRef.child("Polls").child(PollId).setValue(prasalnik).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void unused) {
                             Toast.makeText(AdminActivity.this, "DATA IS ADDED", Toast.LENGTH_SHORT).show();

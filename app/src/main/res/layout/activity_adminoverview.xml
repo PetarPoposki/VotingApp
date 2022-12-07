@@ -32,8 +32,8 @@
 
             <TextView
                 android:id="@+id/textView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="330dp"
+                android:layout_height="84dp"
                 android:layout_marginTop="32dp"
                 android:fontFamily="@font/amaranth"
                 android:text="Admin Overview"
@@ -46,13 +46,26 @@
 
             <Button
                 android:id="@+id/createquestion"
-                android:layout_width="249dp"
-                android:layout_height="146dp"
-                android:layout_marginTop="48dp"
+                android:layout_width="170dp"
+                android:layout_height="100dp"
+                android:layout_marginTop="20dp"
                 android:background="@drawable/input_bg"
                 android:text="Create Poll"
                 android:textColor="@color/white"
                 android:textSize="25sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/inputTitle" />
+
+            <EditText
+                android:id="@+id/inputTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:ems="10"
+                android:hint="Input Poll Title"
+                android:inputType="textPersonName"
+                android:text=""
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView" />
