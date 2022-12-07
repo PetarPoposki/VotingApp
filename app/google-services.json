@@ -2,7 +2,6 @@
   "project_info": {
     "project_number": "516224084619",
     "project_id": "votingapp-b03ae",
-    "firebase_url":  "https://votingapp-b03ae-default-rtdb.europe-west1.firebasedatabase.app",
     "storage_bucket": "votingapp-b03ae.appspot.com"
   },
   "client": [

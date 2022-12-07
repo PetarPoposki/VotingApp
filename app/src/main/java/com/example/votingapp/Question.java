@@ -2,43 +2,39 @@ package com.example.votingapp;
 
 import com.google.firebase.database.PropertyName;
 
+import java.util.List;
+
 public class Question {
     @PropertyName("Question")
     private String question;
-    @PropertyName("Answer1")
-    private String answer1;
-    @PropertyName("Answer2")
-    private String answer2;
+    @PropertyName("Answers")
+    private List<String> answers;
 
-    public Question(String question, String answer1, String answer2) {
+
+    public Question(String question, List<String> answers) {
         this.question = question;
-        this.answer1 = answer1;
-        this.answer2 = answer2;
+        this.answers = answers;
     }
 
+    @PropertyName("question")
     public String getQuestion() {
         return question;
     }
 
-    public String getAnswer1() {
-        return answer1;
+    @PropertyName("answers")
+    public List<String> getAnswers() {
+        return answers;
     }
 
-    public String getAnswer2() {
-        return answer2;
-    }
 
     public void setQuestion(String question) {
         this.question = question;
     }
 
-    public void setAnswer1(String answer1) {
-        this.answer1 = answer1;
+    public void setAnswers(List<String> answers) {
+        this.answers = answers;
     }
 
-    public void setAnswer2(String answer2) {
-        this.answer2 = answer2;
-    }
 
     public Question() {
 

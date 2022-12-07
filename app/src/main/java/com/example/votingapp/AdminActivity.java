@@ -62,31 +62,29 @@ public class AdminActivity extends AppCompatActivity {
         addQuestion.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String question = prasanje.getText().toString();
-                String answer1 = izbor1.getText().toString();
-                String answer2 = izbor2.getText().toString();
+                //String question = prasanje.getText().toString();
+                String question = "Are you ok?";
+                String question2 = "Do you like pizza?";
+                List<String> answers = new ArrayList<>();
+                answers.add("Yes");
+                answers.add("No");
 
                 if (question.isEmpty())
                 {
                     prasanje.setError("Enter question.");
                 }
-                else if (answer1.isEmpty())
-                {
-                    izbor1.setError("Enter First Answer.");
-                }
-                else if (answer2.isEmpty())
-                {
-                    izbor2.setError("Enter Second Answer.");
-                }
-                else if (!question.isEmpty() && !answer1.isEmpty() && !answer2.isEmpty())
+
+                else if (!question.isEmpty())
                 {
                     String QuestionId = "Question" + k.toString();
                     PollId = "Poll" + CountPolls.toString();
                     k = k + 1;
-                    Question prasance = new Question(question, answer1, answer2);
+                    Question prasance = new Question(question, answers);
+                    Question prasanje2 = new Question(question2, answers);
+                    Poll prasalnik = new Poll();
 
 
-                    mDatabase.child("Polls").child(PollId).child(QuestionId).setValue(prasance).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    mDatabase.child("Polls").child(PollId).setValue(prasance).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void unused) {
                             Toast.makeText(AdminActivity.this, "DATA IS ADDED", Toast.LENGTH_SHORT).show();
@@ -111,8 +109,23 @@ public class AdminActivity extends AppCompatActivity {
                 }
                 else
                 {
+                    String question = "Do you like music?";
+                    String question2 = "Do you like art?";
+                    List<String> answers = new ArrayList<>();
+                    answers.add("Yes");
+                    answers.add("No");
+
+                    Question prasance = new Question(question, answers);
+                    Question prasanje2 = new Question(question2, answers);
+                    List<Question> prasanja = new ArrayList<>();
+                    prasanja.add(prasance);
+                    prasanja.add(prasanje2);
+                    time = "07:02:03";
+                    String title = "Vtor";
+                    Poll prasalnik = new Poll(prasanja, time, title);
                     PollId = "Poll" + CountPolls.toString();
-                    mDatabase.child("Polls").child(PollId).child("TimeStart").setValue(time).addOnSuccessListener(new OnSuccessListener<Void>() {
+
+                    mDatabase.child("Polls").child(title).setValue(prasalnik).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void unused) {
                             Toast.makeText(AdminActivity.this, "DATA IS ADDED", Toast.LENGTH_SHORT).show();
