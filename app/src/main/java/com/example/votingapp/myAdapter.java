@@ -39,6 +39,7 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
     public class ViewHolder extends RecyclerView.ViewHolder {
 
         public TextView question;
+        public Button potvrdi;
 
         //public TextView firstanswer;
         //public TextView secondanswer;
@@ -48,6 +49,8 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
             mDatabase = FirebaseDatabase.getInstance("https://votingapp-b03ae-default-rtdb.europe-west1.firebasedatabase.app/").getReference();
             question = (TextView) itemView.findViewById(R.id.question);
             radiogrupa = (RadioGroup) itemView.findViewById(R.id.grupa);
+            potvrdi = (Button) itemView.findViewById(R.id.confirmanswer);
+
 
             radiogrupa.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
 
@@ -59,50 +62,58 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
 
                     String selectedText = (String) radioButton.getText();
 
-                    mDatabase.child("Results").addListenerForSingleValueEvent(new ValueEventListener() {
+                    potvrdi.setOnClickListener( new View.OnClickListener() {
+
                         @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        public void onClick(View v) {
+                            mDatabase.child("Results").addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                            // CountQuestions = (int) snapshot.getChildrenCount();
-                            for (DataSnapshot postSnapshot : snapshot.getChildren()) {
-                                //values.add((Question) postSnapshot.child().getValue(Poll.class));
-                                List<Question> listaprasanja = new ArrayList<Question>();
-                                listaprasanja.clear();
-                                listaprasanja = postSnapshot.getValue(Poll.class).getQuestions();
-                                String title = postSnapshot.getValue(Poll.class).getTitle();
-                                String time = postSnapshot.getValue(Poll.class).getTime();
-                                for(Question prasanje: listaprasanja)
-                                {
-                                    //values.add(prasanje);
-                                    //mAdapter.notifyDataSetChanged();
-                                    Integer i = listaprasanja.indexOf(prasanje);
+                                    // CountQuestions = (int) snapshot.getChildrenCount();
+                                    for (DataSnapshot postSnapshot : snapshot.getChildren()) {
+                                        //values.add((Question) postSnapshot.child().getValue(Poll.class));
+                                        List<Question> listaprasanja = new ArrayList<Question>();
+                                        listaprasanja.clear();
+                                        listaprasanja = postSnapshot.getValue(Poll.class).getQuestions();
+                                        String title = postSnapshot.getValue(Poll.class).getTitle();
+                                        String time = postSnapshot.getValue(Poll.class).getTime();
+                                        for(Question prasanje: listaprasanja)
+                                        {
+                                            //values.add(prasanje);
+                                            //mAdapter.notifyDataSetChanged();
+                                            Integer i = listaprasanja.indexOf(prasanje);
 
-                                    odgovori = prasanje.getAnswers();
-                                    odgovori = funkcija(odgovori, selectedText);
-                                    if (odgovori != null)
-                                    {
-                                        prasanje.setAnswers(odgovori);
-                                        listaprasanja.remove(i);
-                                        listaprasanja.set(i, prasanje);
-                                        Poll novo = new Poll(listaprasanja, time, title);
-                                        mDatabase.child("Results").child(title).setValue(novo).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void unused) {
-                                                Toast.makeText(mContext, "DATA IS ADDED", Toast.LENGTH_SHORT).show();
+                                            odgovori = prasanje.getAnswers();
+                                            odgovori = funkcija(odgovori, selectedText);
+                                            if (odgovori != null)
+                                            {
+                                                prasanje.setAnswers(odgovori);
+                                                listaprasanja.remove(i);
+                                                listaprasanja.set(i, prasanje);
+                                                Poll novo = new Poll(listaprasanja, time, title);
+                                                mDatabase.child("Results").child(title).setValue(novo).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void unused) {
+                                                        Toast.makeText(mContext, "DATA IS ADDED", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                });
                                             }
-                                        });
+                                        }
                                     }
+
                                 }
-                            }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError error) {
+                                    Toast.makeText(mContext, "HELLO" + error.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+
+                            });
 
                         }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-                            Toast.makeText(mContext, "HELLO" + error.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-
                     });
+
 
                 }
             });
