@@ -9,8 +9,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -71,11 +73,13 @@ public class UserActivity extends AppCompatActivity {
                     for(Question prasanje: postSnapshot.getValue(Poll.class).getQuestions())
                     {
                         values.add(prasanje);
+                        //mAdapter.notifyDataSetChanged();
+                        List<String> odgovori = prasanje.getAnswers();
+                       // funkcija(odgovori);
                     }
+                    mAdapter.notifyDataSetChanged();
 
                 }
-                mAdapter.notifyDataSetChanged();
-
 
             }
 
@@ -87,18 +91,28 @@ public class UserActivity extends AppCompatActivity {
         });
 
 
-
-            //Toast.makeText(context, "Time of start is " + Vreme, Toast.LENGTH_SHORT).show();
-
-
-
-
-
-
     }
 
+    public void funkcija(List<String> odgovori) //work in progress
+    {
+        for(String x : odgovori)
+        {
+            if (x.equals("Pizza 0"))
+            {
+                String intValue = x.replaceAll("[^0-9]", "");
+                Integer brglasovi = Integer.parseInt(intValue);
+                brglasovi = brglasovi + 1;
+                String vrednost = "Pizza " + brglasovi.toString();
 
-
+                mDatabase.child("Results").child("Second Poll").child("questions").child("0").child("answers").child("0").setValue(vrednost).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        Toast.makeText(UserActivity.this, "DATA IS ADDED", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        }
+    }
 
 
     }

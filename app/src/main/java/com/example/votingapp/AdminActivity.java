@@ -30,6 +30,8 @@ public class AdminActivity extends AppCompatActivity {
     EditText prasanje, izbor1, vreme;
     Button addQuestion, addPoll;
     List<Question> prasanja;
+    List<Question> rezultati;
+    List<String> pomosna;
     String PollId;
     Poll poll;
 
@@ -40,7 +42,10 @@ public class AdminActivity extends AppCompatActivity {
 
 
         prasanja = new ArrayList<Question>();
+        rezultati = new ArrayList<Question>();
+        pomosna = new ArrayList<String>();
         prasanja.clear();
+        rezultati.clear();
         vreme = findViewById(R.id.inputTime);
         prasanje = findViewById(R.id.inputquestion);
         izbor1 = findViewById(R.id.inputanswer1);
@@ -125,8 +130,42 @@ public class AdminActivity extends AppCompatActivity {
                     PollId = poll.getTitle();
                     Poll prasalnik = new Poll(prasanja, time, PollId);
 
-
                     lastRef.child("Polls").child(PollId).setValue(prasalnik).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void unused) {
+                            Toast.makeText(AdminActivity.this, "DATA IS ADDED", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+
+                    for(Question x : prasanja)
+                    {
+                        Question novo = new Question(x.getQuestion(),x.getAnswers());
+                        rezultati.add(novo);
+                    }
+
+                    for(Question x: rezultati)
+                    {
+                        Integer i = rezultati.indexOf(x);
+                        pomosna.clear();
+                        List<String> rezultatiodgovori = x.getAnswers();
+                        for(String y: rezultatiodgovori)
+                        {
+                            Integer k = rezultatiodgovori.indexOf(y);
+                            y = y + " 0";
+                            rezultatiodgovori.remove(k);
+                            rezultatiodgovori.set(k, y);
+                        }
+                        x.setAnswers(rezultatiodgovori);
+                        rezultati.remove(i);
+                        rezultati.set(i,x);
+                    }
+
+
+
+                    Poll rezultat = new Poll(rezultati, time, PollId);
+
+                    lastRef.child("Results").child(PollId).setValue(rezultat).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void unused) {
                             Toast.makeText(AdminActivity.this, "DATA IS ADDED", Toast.LENGTH_SHORT).show();
