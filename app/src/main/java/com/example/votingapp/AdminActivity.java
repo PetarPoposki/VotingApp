@@ -137,6 +137,20 @@ public class AdminActivity extends AppCompatActivity {
                         }
                     });
 
+                    for(Question k: prasanja)
+                    {
+                        String d = k.getQuestion();
+                        lastRef.child("HasVoted").child(d).setValue("").addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                Toast.makeText(AdminActivity.this, "DATA IS ADDED", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
+                    }
+
+
+
 
                     for(Question x : prasanja)
                     {
@@ -152,7 +166,7 @@ public class AdminActivity extends AppCompatActivity {
                         for(String y: rezultatiodgovori)
                         {
                             Integer k = rezultatiodgovori.indexOf(y);
-                            y = y + " 0";
+                            y = y + "-0";
                             rezultatiodgovori.remove(k);
                             rezultatiodgovori.set(k, y);
                         }

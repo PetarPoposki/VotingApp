@@ -16,6 +16,8 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -30,6 +32,9 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
     private int rowLayout;
     private Context mContext;
     private DatabaseReference mDatabase;
+    FirebaseAuth mAuth;
+    FirebaseUser mUser;
+
     List<String> odgovori = new ArrayList<String>();
 
 
@@ -50,6 +55,8 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
             question = (TextView) itemView.findViewById(R.id.question);
             radiogrupa = (RadioGroup) itemView.findViewById(R.id.grupa);
             potvrdi = (Button) itemView.findViewById(R.id.confirmanswer);
+            mAuth = FirebaseAuth.getInstance();
+            mUser = mAuth.getCurrentUser();
 
 
             radiogrupa.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -66,12 +73,12 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
 
                         @Override
                         public void onClick(View v) {
-                            mDatabase.child("Results").addListenerForSingleValueEvent(new ValueEventListener() {
+                            mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(@NonNull DataSnapshot snapshot) {
 
                                     // CountQuestions = (int) snapshot.getChildrenCount();
-                                    for (DataSnapshot postSnapshot : snapshot.getChildren()) {
+                                    for (DataSnapshot postSnapshot : snapshot.child("Results").getChildren()) {
                                         //values.add((Question) postSnapshot.child().getValue(Poll.class));
                                         List<Question> listaprasanja = new ArrayList<Question>();
                                         listaprasanja.clear();
@@ -80,6 +87,7 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
                                         String time = postSnapshot.getValue(Poll.class).getTime();
                                         for(Question prasanje: listaprasanja)
                                         {
+
                                             //values.add(prasanje);
                                             //mAdapter.notifyDataSetChanged();
                                             Integer i = listaprasanja.indexOf(prasanje);
@@ -88,6 +96,8 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
                                             odgovori = funkcija(odgovori, selectedText);
                                             if (odgovori != null)
                                             {
+                                                String iminja = snapshot.child("HasVoted").child(prasanje.getQuestion()).getValue(String.class);
+                                                iminja = iminja + " " + mUser.getEmail();
                                                 prasanje.setAnswers(odgovori);
                                                 listaprasanja.remove(i);
                                                 listaprasanja.set(i, prasanje);
@@ -98,6 +108,14 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
                                                         Toast.makeText(mContext, "DATA IS ADDED", Toast.LENGTH_SHORT).show();
                                                     }
                                                 });
+
+                                                mDatabase.child("HasVoted").child(prasanje.getQuestion()).setValue(iminja).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void unused) {
+                                                        Toast.makeText(mContext, "DATA IS ADDED", Toast.LENGTH_SHORT).show();
+                                                    }
+                                                });
+
                                             }
                                         }
                                     }
@@ -111,6 +129,9 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
 
                             });
 
+                            myList.remove(getAdapterPosition());
+                            notifyItemRemoved(getAdapterPosition());
+                            notifyItemRangeChanged(getAdapterPosition(), myList.size());
                         }
                     });
 
@@ -185,7 +206,7 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
         for(String x : odgovori)
         {
             Integer i = odgovori.indexOf(x);
-            String[] parts = x.split(" ");
+            String[] parts = x.split("-");
             String part1 = parts[0];
             String part2 = parts[1];
             if (part1.equals(tekst))
@@ -193,7 +214,7 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
                 //String intValue = part2.replaceAll("[^0-9]", "");
                 Integer brglasovi = Integer.parseInt(part2);
                 brglasovi = brglasovi + 1;
-                String vrednost = part1 + " " + brglasovi.toString();
+                String vrednost = part1 + "-" + brglasovi.toString();
                 odgovori.remove(i);
                 odgovori.set(i, vrednost);
                 return odgovori;

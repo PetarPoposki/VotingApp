@@ -35,6 +35,7 @@ public class UserActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     FirebaseUser mUser;
     List<Question> values;
+    List<String> iminja;
     Context context;
     String Vreme;
 
@@ -48,6 +49,8 @@ public class UserActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         mUser = mAuth.getCurrentUser();
         values = new ArrayList<Question>();
+        iminja = new ArrayList<String>();
+
         mRecyclerView = (RecyclerView) findViewById(R.id.lista);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -63,56 +66,47 @@ public class UserActivity extends AppCompatActivity {
        // reference = FirebaseDatabase.getInstance("https://votingapp-b03ae-default-rtdb.europe-west1.firebasedatabase.app/").getReference("Polls");
         mDatabase = FirebaseDatabase.getInstance("https://votingapp-b03ae-default-rtdb.europe-west1.firebasedatabase.app/").getReference();
 
-        mDatabase.child("Polls").addValueEventListener(new ValueEventListener() {
+        mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 values.clear();
                 // CountQuestions = (int) snapshot.getChildrenCount();
-                for (DataSnapshot postSnapshot : snapshot.getChildren()) {
+
+                for (DataSnapshot postSnapshot : snapshot.child("Polls").getChildren()) {
                     //values.add((Question) postSnapshot.child().getValue(Poll.class));
                     for(Question prasanje: postSnapshot.getValue(Poll.class).getQuestions())
                     {
-                        values.add(prasanje);
-                        //mAdapter.notifyDataSetChanged();
-                        List<String> odgovori = prasanje.getAnswers();
-                       // funkcija(odgovori);
+                        String d = snapshot.child("HasVoted").child(prasanje.getQuestion()).getValue(String.class);
+                        String[] parts = d.split(" ");
+                        Integer proveri = 0;
+                        String mail = mUser.getEmail();
+                        for (String part: parts)
+                        {
+                            if(part.equals(mail))
+                            {
+                                proveri = 1;
+                                break;
+                            }
+                        }
+                        if (proveri == 0)
+                        {
+                            values.add(prasanje);
+                            mAdapter.notifyDataSetChanged();
+                        }
+
+
                     }
-                    mAdapter.notifyDataSetChanged();
+
 
                 }
 
-            }
 
+            }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 Toast.makeText(UserActivity.this, "HELLO" + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
 
         });
-
-
     }
-
-    public void funkcija(List<String> odgovori) //work in progress
-    {
-        for(String x : odgovori)
-        {
-            if (x.equals("Pizza 0"))
-            {
-                String intValue = x.replaceAll("[^0-9]", "");
-                Integer brglasovi = Integer.parseInt(intValue);
-                brglasovi = brglasovi + 1;
-                String vrednost = "Pizza " + brglasovi.toString();
-
-                mDatabase.child("Results").child("Second Poll").child("questions").child("0").child("answers").child("0").setValue(vrednost).addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        Toast.makeText(UserActivity.this, "DATA IS ADDED", Toast.LENGTH_SHORT).show();
-                    }
-                });
-            }
-        }
-    }
-
-
     }
