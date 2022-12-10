@@ -1,6 +1,7 @@
 package com.example.votingapp;
 
 import android.content.Context;
+import android.location.Location;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,6 +37,8 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
     FirebaseUser mUser;
 
     List<String> odgovori = new ArrayList<String>();
+    List<String> odgovorcinja = new ArrayList<>();
+
 
 
     // Референца на views за секој податок
@@ -57,6 +60,7 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
             potvrdi = (Button) itemView.findViewById(R.id.confirmanswer);
             mAuth = FirebaseAuth.getInstance();
             mUser = mAuth.getCurrentUser();
+
 
 
             radiogrupa.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
@@ -92,13 +96,13 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
                                             //mAdapter.notifyDataSetChanged();
                                             Integer i = listaprasanja.indexOf(prasanje);
 
-                                            odgovori = prasanje.getAnswers();
-                                            odgovori = funkcija(odgovori, selectedText);
-                                            if (odgovori != null)
+                                            odgovorcinja = prasanje.getAnswers();
+                                            odgovorcinja = funkcija(odgovorcinja, selectedText);
+                                            if (odgovorcinja != null)
                                             {
                                                 String iminja = snapshot.child("HasVoted").child(prasanje.getQuestion()).getValue(String.class);
                                                 iminja = iminja + " " + mUser.getEmail();
-                                                prasanje.setAnswers(odgovori);
+                                                prasanje.setAnswers(odgovorcinja);
                                                 listaprasanja.remove(i);
                                                 listaprasanja.set(i, prasanje);
                                                 Poll novo = new Poll(listaprasanja, time, title);
@@ -116,6 +120,8 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
                                                     }
                                                 });
 
+                                                myList.remove(getAdapterPosition());
+                                                notifyItemRemoved(getAdapterPosition());
                                             }
                                         }
                                     }
@@ -129,10 +135,9 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
 
                             });
 
-                            myList.remove(getAdapterPosition());
-                            notifyItemRemoved(getAdapterPosition());
-                            notifyItemChanged(getLayoutPosition());
-                            notifyItemRangeChanged(getAdapterPosition(), myList.size());
+
+
+
                         }
                     });
 
@@ -163,15 +168,12 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
     }
     @Override
     public void onBindViewHolder(ViewHolder viewHolder, int i) {
-        //Poll entry1 = myList.get(i);
-        //List<Question> listice = entry1.getQuestions();
-        // Question entry = lis
 
-        Question prasanje = myList.get(i);
-        viewHolder.question.setText(prasanje.getQuestion());
+        Question pras = myList.get(i);
+        viewHolder.question.setText(pras.getQuestion());
         List<String> odgovori = new ArrayList<>();
         odgovori.clear();
-        odgovori = prasanje.getAnswers();
+        odgovori = pras.getAnswers();
         for(String odgovor : odgovori)
         {
             RadioButton button = new RadioButton(mContext);
@@ -190,11 +192,11 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
         return myList;
     }
 
-    public List<String> funkcija(List<String> odgovori, String tekst) //work in progress
+    public List<String> funkcija(List<String> odgovorig, String tekst) //work in progress
     {
-        for(String x : odgovori)
+        for(String x : odgovorig)
         {
-            Integer i = odgovori.indexOf(x);
+            Integer i = odgovorig.indexOf(x);
             String[] parts = x.split("-");
             String part1 = parts[0];
             String part2 = parts[1];
@@ -204,9 +206,9 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
                 Integer brglasovi = Integer.parseInt(part2);
                 brglasovi = brglasovi + 1;
                 String vrednost = part1 + "-" + brglasovi.toString();
-                odgovori.remove(i);
-                odgovori.set(i, vrednost);
-                return odgovori;
+                odgovorig.remove(i);
+                odgovorig.set(i, vrednost);
+                return odgovorig;
             }
 
         }

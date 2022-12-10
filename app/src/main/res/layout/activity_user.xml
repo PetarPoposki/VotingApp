@@ -40,21 +40,21 @@
         android:fontFamily="@font/amaranth"
         android:text=""
         android:textColor="@color/white"
-        android:textSize="30sp"
         android:textStyle="italic"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/lista"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/lista"
                 android:layout_width="320dp"
                 android:layout_height="match_parent"
-                android:layout_marginTop="80dp"
+                android:layout_marginTop="100dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.494"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView" />
+                app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
 

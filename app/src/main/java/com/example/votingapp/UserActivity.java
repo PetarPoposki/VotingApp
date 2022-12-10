@@ -2,13 +2,22 @@ package com.example.votingapp;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.provider.Settings;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +45,12 @@ public class UserActivity extends AppCompatActivity {
     List<String> vreminja;
     TextView naslov;
     List<Poll> polls;
+    Location location = null;
+    public static final int REQUEST_LOCATION_PERMISSION = 1;
+    long MIN_TIME_INTERVAL = 1000; // 1 second
+    float MIN_DISTANCE = 100; // 100 meters
+
+
 
 
 
@@ -50,6 +65,17 @@ public class UserActivity extends AppCompatActivity {
         vreminja = new ArrayList<String>();
         polls = new ArrayList<Poll>();
         naslov = findViewById(R.id.textView);
+        LocationManager locationManager = (LocationManager)
+                getSystemService(Context.LOCATION_SERVICE);
+
+        LocationListener locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                // Handle the updated location
+                double latitude = location.getLatitude();
+                double longitude = location.getLongitude();
+            }
+        };
 
         mRecyclerView = (RecyclerView) findViewById(R.id.lista);
         kRecyclerView = (RecyclerView) findViewById(R.id.lista);
@@ -59,6 +85,34 @@ public class UserActivity extends AppCompatActivity {
         mAdapter = new myAdapter(values, R.layout.poll_items, UserActivity.this);
         mRecyclerView.setAdapter(mAdapter);
         context = this;
+
+
+
+        // Check if the app has permission to access the device's location
+        if (ActivityCompat.checkSelfPermission((Activity) UserActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission((Activity) UserActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // If the app doesn't have permission, request permission
+            ActivityCompat.requestPermissions((Activity) UserActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION_PERMISSION);
+        } else {
+            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+                // If the location provider is not enabled, prompt the user to enable it
+                Intent enableLocationIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                startActivity(enableLocationIntent);
+            }
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME_INTERVAL, MIN_DISTANCE, locationListener);
+            location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        }
+        if (location == null) {
+            try {
+                throw new Exception("Please allow location so we can submit your vote");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+
+
+
 
 
         mDatabase = FirebaseDatabase.getInstance("https://votingapp-b03ae-default-rtdb.europe-west1.firebasedatabase.app/").getReference();
@@ -71,6 +125,16 @@ public class UserActivity extends AppCompatActivity {
                 // CountQuestions = (int) snapshot.getChildrenCount();
 
                 for (DataSnapshot postSnapshot : snapshot.child("Polls").getChildren()) {
+                    String mailce = mUser.getEmail();
+                    String[] mailparts = mailce.split("[.]");
+                    mDatabase.child("Locations").child(postSnapshot.getValue(Poll.class).getTitle()).child(mailparts[0]).setValue(location).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void unused) {
+                            //Toast.makeText(mContext, "DATA IS ADDED", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+
                     vreminja.add(postSnapshot.getValue(Poll.class).getTime());
                     for(Question prasanje: postSnapshot.getValue(Poll.class).getQuestions())
                     {
