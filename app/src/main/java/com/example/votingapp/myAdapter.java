@@ -131,6 +131,7 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
 
                             myList.remove(getAdapterPosition());
                             notifyItemRemoved(getAdapterPosition());
+                            notifyItemChanged(getLayoutPosition());
                             notifyItemRangeChanged(getAdapterPosition(), myList.size());
                         }
                     });
@@ -144,8 +145,8 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
 
             //firstanswer = (TextView) itemView.findViewById(R.id.choice1);
             //secondanswer = (TextView) itemView.findViewById(R.id.choice2);
-           // myName = (TextView) itemView.findViewById(R.id.Name);
-           // Pic = (ImageView) itemView.findViewById(R.id.picture);
+            // myName = (TextView) itemView.findViewById(R.id.Name);
+            // Pic = (ImageView) itemView.findViewById(R.id.picture);
         }
     }
     // конструктор
@@ -164,7 +165,7 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
     public void onBindViewHolder(ViewHolder viewHolder, int i) {
         //Poll entry1 = myList.get(i);
         //List<Question> listice = entry1.getQuestions();
-       // Question entry = lis
+        // Question entry = lis
 
         Question prasanje = myList.get(i);
         viewHolder.question.setText(prasanje.getQuestion());
@@ -177,18 +178,6 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
             button.setText(odgovor);
             viewHolder.radiogrupa.addView(button);
         }
-
-        //viewHolder.question.setText(entry.getQuestion());
-        //viewHolder.firstanswer.setText(entry.getAnswer1());
-        //viewHolder.secondanswer.setText(entry.getAnswer2());
-       // viewHolder.myName.setOnClickListener(new View.OnClickListener() {
-         //   @Override
-          //  public void onClick(View v) {
-            //    TextView tv = (TextView) v;
-             //   Toast.makeText(mContext, tv.getText(), Toast.LENGTH_SHORT).show();
-          //  }
-      //  });
-       // viewHolder.Pic.setImageResource(R.drawable.phone);
     }
     // Пресметка на големината на податочното множество (повикано од
     // layout manager)

@@ -143,7 +143,14 @@ public class AdminActivity extends AppCompatActivity {
                         lastRef.child("HasVoted").child(d).setValue("").addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void unused) {
-                                Toast.makeText(AdminActivity.this, "DATA IS ADDED", Toast.LENGTH_SHORT).show();
+                                //Toast.makeText(AdminActivity.this, "DATA IS ADDED", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
+                        lastRef.child("TimeOut").child(d).setValue("").addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                //Toast.makeText(AdminActivity.this, "DATA IS ADDED", Toast.LENGTH_SHORT).show();
                             }
                         });
 
