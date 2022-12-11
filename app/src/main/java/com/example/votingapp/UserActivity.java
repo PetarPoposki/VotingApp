@@ -19,6 +19,8 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.provider.Settings;
 import android.widget.TextView;
+import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -45,10 +47,11 @@ public class UserActivity extends AppCompatActivity {
     List<String> vreminja;
     TextView naslov;
     List<Poll> polls;
-    Location location = null;
+    LocationManager locationManager;
     public static final int REQUEST_LOCATION_PERMISSION = 1;
     long MIN_TIME_INTERVAL = 1000; // 1 second
     float MIN_DISTANCE = 100; // 100 meters
+    Location location = null;
 
 
 
@@ -65,9 +68,6 @@ public class UserActivity extends AppCompatActivity {
         vreminja = new ArrayList<String>();
         polls = new ArrayList<Poll>();
         naslov = findViewById(R.id.textView);
-        LocationManager locationManager = (LocationManager)
-                getSystemService(Context.LOCATION_SERVICE);
-
         LocationListener locationListener = new LocationListener() {
             @Override
             public void onLocationChanged(Location location) {
@@ -76,6 +76,10 @@ public class UserActivity extends AppCompatActivity {
                 double longitude = location.getLongitude();
             }
         };
+
+
+
+
 
         mRecyclerView = (RecyclerView) findViewById(R.id.lista);
         kRecyclerView = (RecyclerView) findViewById(R.id.lista);
@@ -87,7 +91,8 @@ public class UserActivity extends AppCompatActivity {
         context = this;
 
 
-
+        LocationManager locationManager = (LocationManager)
+                getSystemService(Context.LOCATION_SERVICE);
         // Check if the app has permission to access the device's location
         if (ActivityCompat.checkSelfPermission((Activity) UserActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission((Activity) UserActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -102,22 +107,10 @@ public class UserActivity extends AppCompatActivity {
             locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME_INTERVAL, MIN_DISTANCE, locationListener);
             location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
         }
-        if (location == null) {
-            try {
-                throw new Exception("Please allow location so we can submit your vote");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-
-
-
-
-
         mDatabase = FirebaseDatabase.getInstance("https://votingapp-b03ae-default-rtdb.europe-west1.firebasedatabase.app/").getReference();
 
-        mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
+
+                mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 values.clear();
@@ -135,7 +128,7 @@ public class UserActivity extends AppCompatActivity {
                     });
 
 
-                    vreminja.add(postSnapshot.getValue(Poll.class).getTime());
+
                     for(Question prasanje: postSnapshot.getValue(Poll.class).getQuestions())
                     {
                         String d = snapshot.child("HasVoted").child(prasanje.getQuestion()).getValue(String.class);
@@ -164,6 +157,7 @@ public class UserActivity extends AppCompatActivity {
                         }
                         if (proveri == 0)
                         {
+                            vreminja.add(postSnapshot.getValue(Poll.class).getTime());
                             values.add(prasanje);
 
                         }
@@ -254,7 +248,7 @@ public class UserActivity extends AppCompatActivity {
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(UserActivity.this, "HELLO" + error.getMessage(), Toast.LENGTH_SHORT).show();
+               // Toast.makeText(UserActivity.this, "HELLO" + error.getMessage(), Toast.LENGTH_SHORT).show();
             }
 
         });

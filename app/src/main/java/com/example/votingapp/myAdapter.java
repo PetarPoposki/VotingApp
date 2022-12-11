@@ -109,14 +109,14 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
                                                 mDatabase.child("Results").child(title).setValue(novo).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                     @Override
                                                     public void onSuccess(Void unused) {
-                                                        Toast.makeText(mContext, "DATA IS ADDED", Toast.LENGTH_SHORT).show();
+                                                        //Toast.makeText(mContext, "DATA IS ADDED", Toast.LENGTH_SHORT).show();
                                                     }
                                                 });
 
                                                 mDatabase.child("HasVoted").child(prasanje.getQuestion()).setValue(iminja).addOnSuccessListener(new OnSuccessListener<Void>() {
                                                     @Override
                                                     public void onSuccess(Void unused) {
-                                                        Toast.makeText(mContext, "DATA IS ADDED", Toast.LENGTH_SHORT).show();
+                                                        //Toast.makeText(mContext, "DATA IS ADDED", Toast.LENGTH_SHORT).show();
                                                     }
                                                 });
 
@@ -145,13 +145,6 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
                 }
             });
 
-
-            //button = new Button(this);
-
-            //firstanswer = (TextView) itemView.findViewById(R.id.choice1);
-            //secondanswer = (TextView) itemView.findViewById(R.id.choice2);
-            // myName = (TextView) itemView.findViewById(R.id.Name);
-            // Pic = (ImageView) itemView.findViewById(R.id.picture);
         }
     }
     // конструктор
@@ -202,7 +195,7 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
             String part2 = parts[1];
             if (part1.equals(tekst))
             {
-                //String intValue = part2.replaceAll("[^0-9]", "");
+
                 Integer brglasovi = Integer.parseInt(part2);
                 brglasovi = brglasovi + 1;
                 String vrednost = part1 + "-" + brglasovi.toString();

@@ -51,24 +51,10 @@ public class AdminActivity extends AppCompatActivity {
         izbor1 = findViewById(R.id.inputanswer1);
         addQuestion = findViewById(R.id.createquestion);
         addPoll = findViewById(R.id.addPoll);
+        Intent intent = getIntent();
+        PollId = intent.getStringExtra("PollId");
+
         DatabaseReference lastRef = FirebaseDatabase.getInstance("https://votingapp-b03ae-default-rtdb.europe-west1.firebasedatabase.app/").getReference();
-        Query lastQuery = lastRef.child("Polls").orderByKey().limitToLast(1);
-        lastQuery.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                for(DataSnapshot data : dataSnapshot.getChildren())
-                {
-
-                    String key = data.getKey(); // then it has the value "4:"
-                    poll = new Poll();
-                    poll.setTitle(key);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }});
 
         addQuestion.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -127,7 +113,6 @@ public class AdminActivity extends AppCompatActivity {
                 }
                 else
                 {
-                    PollId = poll.getTitle();
                     Poll prasalnik = new Poll(prasanja, time, PollId);
 
                     lastRef.child("Polls").child(PollId).setValue(prasalnik).addOnSuccessListener(new OnSuccessListener<Void>() {

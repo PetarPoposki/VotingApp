@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -28,6 +29,7 @@ import java.util.List;
 
 public class AdminoverviewActivity extends AppCompatActivity {
     Button createPoll;
+    ImageButton viewMap;
     EditText pollTitle;
     Poll novo;
     private DatabaseReference mDatabase;
@@ -51,7 +53,7 @@ public class AdminoverviewActivity extends AppCompatActivity {
         mAdapter = new AdminAdapter(values, R.layout.result_items, AdminoverviewActivity.this);
         mRecyclerView.setAdapter(mAdapter);
         context = this;
-
+        viewMap = findViewById(R.id.map);
 
         mDatabase = FirebaseDatabase.getInstance("https://votingapp-b03ae-default-rtdb.europe-west1.firebasedatabase.app/").getReference();
         pollTitle = findViewById(R.id.inputTitle);
@@ -69,12 +71,21 @@ public class AdminoverviewActivity extends AppCompatActivity {
                             Toast.makeText(AdminoverviewActivity.this, "DATA IS ADDED", Toast.LENGTH_SHORT).show();
                         }
                     });
-                    startActivity(new Intent(AdminoverviewActivity.this, AdminActivity.class));
+                    Intent intent = new Intent(AdminoverviewActivity.this, AdminActivity.class);
+                    intent.putExtra("PollId", pollTitle.getText().toString());
+                    startActivity(intent);
                 }
                 else
                 {
                     pollTitle.setError("Enter title");
                 }
+            }
+        });
+        viewMap.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(AdminoverviewActivity.this, MapviewActivity.class);
+                startActivity(intent);
             }
         });
 
