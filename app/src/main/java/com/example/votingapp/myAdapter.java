@@ -35,9 +35,10 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
     private DatabaseReference mDatabase;
     FirebaseAuth mAuth;
     FirebaseUser mUser;
+    List<String> odgovorcinja;
+    List<Question> listaprasanja;
+    List<String> odgovori;
 
-    List<String> odgovori = new ArrayList<String>();
-    List<String> odgovorcinja = new ArrayList<>();
 
 
 
@@ -58,6 +59,7 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
             question = (TextView) itemView.findViewById(R.id.question);
             radiogrupa = (RadioGroup) itemView.findViewById(R.id.grupa);
             potvrdi = (Button) itemView.findViewById(R.id.confirmanswer);
+
             mAuth = FirebaseAuth.getInstance();
             mUser = mAuth.getCurrentUser();
 
@@ -68,8 +70,8 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
                 @Override
                 public void onCheckedChanged(RadioGroup rGroup, int checkedId) {
 
-                    int radioButtonID = radiogrupa.getCheckedRadioButtonId();
-                    RadioButton radioButton = (RadioButton) radiogrupa.findViewById(radioButtonID);
+                    //int radioButtonID = radiogrupa.getCheckedRadioButtonId();
+                    RadioButton radioButton = (RadioButton) radiogrupa.findViewById(checkedId);
 
                     String selectedText = (String) radioButton.getText();
 
@@ -77,25 +79,26 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
 
                         @Override
                         public void onClick(View v) {
+
+
                             mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(@NonNull DataSnapshot snapshot) {
 
+
                                     // CountQuestions = (int) snapshot.getChildrenCount();
                                     for (DataSnapshot postSnapshot : snapshot.child("Results").getChildren()) {
                                         //values.add((Question) postSnapshot.child().getValue(Poll.class));
-                                        List<Question> listaprasanja = new ArrayList<Question>();
+                                        listaprasanja = new ArrayList<Question>();
                                         listaprasanja.clear();
                                         listaprasanja = postSnapshot.getValue(Poll.class).getQuestions();
                                         String title = postSnapshot.getValue(Poll.class).getTitle();
                                         String time = postSnapshot.getValue(Poll.class).getTime();
                                         for(Question prasanje: listaprasanja)
                                         {
-
-                                            //values.add(prasanje);
-                                            //mAdapter.notifyDataSetChanged();
+                                            odgovorcinja = new ArrayList<String>();
                                             Integer i = listaprasanja.indexOf(prasanje);
-
+                                            odgovorcinja.clear();
                                             odgovorcinja = prasanje.getAnswers();
                                             odgovorcinja = funkcija(odgovorcinja, selectedText);
                                             if (odgovorcinja != null)
@@ -122,10 +125,14 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
 
                                                 myList.remove(getAdapterPosition());
                                                 notifyItemRemoved(getAdapterPosition());
+                                                //notifyItemChanged(getAdapterPosition());
+                                               // notifyItemRangeChanged(getAdapterPosition(), myList.size());
                                             }
                                         }
                                     }
 
+
+                                    //notifyItemRangeChanged(getAdapterPosition(), myList.size());
                                 }
 
                                 @Override
@@ -134,14 +141,8 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
                                 }
 
                             });
-
-
-
-
                         }
                     });
-
-
                 }
             });
 
@@ -164,14 +165,16 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
 
         Question pras = myList.get(i);
         viewHolder.question.setText(pras.getQuestion());
-        List<String> odgovori = new ArrayList<>();
-        odgovori.clear();
+        odgovori = new ArrayList<String>();
         odgovori = pras.getAnswers();
-        for(String odgovor : odgovori)
-        {
-            RadioButton button = new RadioButton(mContext);
-            button.setText(odgovor);
-            viewHolder.radiogrupa.addView(button);
+        if(viewHolder.radiogrupa.getChildCount() == 0) {
+            for (int l = 0; l < odgovori.size(); l++) {
+                RadioButton button = new RadioButton(mContext);
+                //button.setTag(10*i + l);
+                //button.setChecked(false);
+                button.setText(odgovori.get(l));
+                viewHolder.radiogrupa.addView(button);
+            }
         }
     }
     // Пресметка на големината на податочното множество (повикано од
