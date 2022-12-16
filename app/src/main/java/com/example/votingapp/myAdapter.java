@@ -167,15 +167,13 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
         viewHolder.question.setText(pras.getQuestion());
         odgovori = new ArrayList<String>();
         odgovori = pras.getAnswers();
-        if(viewHolder.radiogrupa.getChildCount() == 0) {
-            for (int l = 0; l < odgovori.size(); l++) {
-                RadioButton button = new RadioButton(mContext);
-                //button.setTag(10*i + l);
-                //button.setChecked(false);
-                button.setText(odgovori.get(l));
-                viewHolder.radiogrupa.addView(button);
+        for (int l = 0; l < odgovori.size(); l++) {
+
+            RadioButton button = new RadioButton(mContext);
+            button.setText(odgovori.get(l));
+            viewHolder.radiogrupa.addView(button);
             }
-        }
+
     }
     // Пресметка на големината на податочното множество (повикано од
     // layout manager)
@@ -198,7 +196,6 @@ public class myAdapter extends RecyclerView.Adapter<myAdapter.ViewHolder> {
             String part2 = parts[1];
             if (part1.equals(tekst))
             {
-
                 Integer brglasovi = Integer.parseInt(part2);
                 brglasovi = brglasovi + 1;
                 String vrednost = part1 + "-" + brglasovi.toString();

@@ -1,11 +1,13 @@
 package com.example.votingapp;
 
+import static android.content.ContentValues.TAG;
 import static java.time.chrono.JapaneseEra.values;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -13,6 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.google.android.gms.common.util.IOUtils;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -21,8 +24,17 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class AdminActivity extends AppCompatActivity {
     private DatabaseReference mDatabase;
@@ -34,6 +46,7 @@ public class AdminActivity extends AppCompatActivity {
     List<String> pomosna;
     String PollId;
     Poll poll;
+    String SERVER_KEY = "AAAAeDFaaos:APA91bEJr3EKrIkaR0o4LD1ADA_s1eRBKTB3WX7B8Z-3k21JjVkx5Vn9WxKooGvEeLFLYMvgjLQV9juu2ao_SmVomE5ZzEYNQpUw4Is8jPdpW0Isy2X5YFpufjOZ2EZFCx2IKWE2iLvf";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -166,7 +179,7 @@ public class AdminActivity extends AppCompatActivity {
                         rezultati.remove(i);
                         rezultati.set(i,x);
                     }
-
+                    sendNotification();
 
 
                     Poll rezultat = new Poll(rezultati, time, PollId);
@@ -178,6 +191,10 @@ public class AdminActivity extends AppCompatActivity {
                         }
                     });
 
+
+
+
+
                    Intent intent = new Intent(AdminActivity.this, AdminoverviewActivity.class);
                    startActivity(intent);
                 }
@@ -185,4 +202,71 @@ public class AdminActivity extends AppCompatActivity {
         });
 
     }
+
+    private void sendNotification() {
+        // Create a new message
+        JSONObject message = new JSONObject();
+        try {
+            message.put("to", "/topics/all");
+            message.put("data", new JSONObject().put("message", PollId + " HAS STARTED!!"));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        // Send the message using the FCM API
+        new SendMessageTask().execute(message);
+    }
+
+    private class SendMessageTask extends AsyncTask<JSONObject, Void, String> {
+        @Override
+        protected String doInBackground(JSONObject... params) {
+            try {
+                // Send the message to the server
+                URL url = new URL("https://fcm.googleapis.com/fcm/send");
+                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                connection.setRequestMethod("POST");
+                connection.setRequestProperty("Content-Type", "application/json");
+                connection.setRequestProperty("Authorization", "key=AAAAeDFaaos:APA91bEJr3EKrIkaR0o4LD1ADA_s1eRBKTB3WX7B8Z-3k21JjVkx5Vn9WxKooGvEeLFLYMvgjLQV9juu2ao_SmVomE5ZzEYNQpUw4Is8jPdpW0Isy2X5YFpufjOZ2EZFCx2IKWE2iLvf");
+                connection.setDoOutput(true);
+
+                // Write the message to the request body
+                OutputStream outputStream = connection.getOutputStream();
+                outputStream.write(params[0].toString().getBytes());
+                outputStream.flush();
+                outputStream.close();
+
+                // Read the response from the server
+                InputStream inputStream = connection.getInputStream();
+                String response = convertStreamToString(inputStream);
+                inputStream.close();
+
+                return response;
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String response) {
+            // Handle the response from the server
+            Log.d(TAG, "Response: " + response);
+        }
+    }
+
+    private String convertStreamToString(InputStream inputStream) {
+        // This method reads the response from the server and converts it to a string
+        // You can customize this method to handle the response in any way you want
+        Scanner scanner = new Scanner(inputStream).useDelimiter("\\A");
+        return scanner.hasNext() ? scanner.next() : "";
+    }
+
+
 }
+
+
+
+
+
+

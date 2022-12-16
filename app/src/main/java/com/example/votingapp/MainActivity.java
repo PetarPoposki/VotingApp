@@ -1,11 +1,14 @@
 package com.example.votingapp;
 
+import static android.content.ContentValues.TAG;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -19,6 +22,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -84,7 +88,19 @@ public class MainActivity extends AppCompatActivity {
                     {
                         progressDialog.dismiss();
                         sendUserToNextActivity();
-                        Toast.makeText(MainActivity.this, "Login is successful.", Toast.LENGTH_SHORT).show();
+                        FirebaseMessaging.getInstance().subscribeToTopic("all")
+                                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        String msg = "Subscribed";
+                                        if (!task.isSuccessful()) {
+                                            msg = "Subscribe failed";
+                                        }
+                                        Log.d(TAG, msg);
+                                        Toast.makeText(MainActivity.this, msg, Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                       // Toast.makeText(MainActivity.this, "Login is successful.", Toast.LENGTH_SHORT).show();
                     }
                     else
                     {

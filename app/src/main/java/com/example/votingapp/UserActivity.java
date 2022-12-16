@@ -118,6 +118,7 @@ public class UserActivity extends AppCompatActivity {
                 // CountQuestions = (int) snapshot.getChildrenCount();
 
                 for (DataSnapshot postSnapshot : snapshot.child("Polls").getChildren()) {
+                    vreminja.add(postSnapshot.getValue(Poll.class).getTime());
                     String mailce = mUser.getEmail();
                     String[] mailparts = mailce.split("[.]");
                     mDatabase.child("Locations").child(postSnapshot.getValue(Poll.class).getTitle()).child(mailparts[0]).setValue(location).addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -157,11 +158,10 @@ public class UserActivity extends AppCompatActivity {
                         }
                         if (proveri == 0)
                         {
-                            vreminja.add(postSnapshot.getValue(Poll.class).getTime());
                             values.add(prasanje);
-
                         }
                     }
+
 
                 }
                 mRecyclerView = (RecyclerView) findViewById(R.id.lista);
