@@ -1,6 +1,7 @@
 package com.example.votingapp;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -32,10 +33,20 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.drawerlayout.widget.DrawerLayout;
+import android.os.Bundle;
+import android.view.MenuItem;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class UserActivity extends AppCompatActivity {
+    public DrawerLayout drawerLayout;
+    public ActionBarDrawerToggle actionBarDrawerToggle;
+
     private DatabaseReference mDatabase;
     RecyclerView mRecyclerView,kRecyclerView;
     myAdapter mAdapter,kAdapter;
@@ -61,196 +72,16 @@ public class UserActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user);
-        mAuth = FirebaseAuth.getInstance();
-        mUser = mAuth.getCurrentUser();
-        values = new ArrayList<Question>();
-        iminja = new ArrayList<String>();
-        vreminja = new ArrayList<String>();
-        polls = new ArrayList<Poll>();
-        naslov = findViewById(R.id.textView);
-        LocationListener locationListener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                // Handle the updated location
-                double latitude = location.getLatitude();
-                double longitude = location.getLongitude();
-            }
-        };
 
-
-
-
-
-        mRecyclerView = (RecyclerView) findViewById(R.id.lista);
-        kRecyclerView = (RecyclerView) findViewById(R.id.lista);
-        mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mAdapter = new myAdapter(values, R.layout.poll_items, UserActivity.this);
-        mRecyclerView.setAdapter(mAdapter);
-        context = this;
-
-
-        LocationManager locationManager = (LocationManager)
-                getSystemService(Context.LOCATION_SERVICE);
-        // Check if the app has permission to access the device's location
-        if (ActivityCompat.checkSelfPermission((Activity) UserActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission((Activity) UserActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // If the app doesn't have permission, request permission
-            ActivityCompat.requestPermissions((Activity) UserActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION_PERMISSION);
-        } else {
-            if (!locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-                // If the location provider is not enabled, prompt the user to enable it
-                Intent enableLocationIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                startActivity(enableLocationIntent);
-            }
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, MIN_TIME_INTERVAL, MIN_DISTANCE, locationListener);
-            location = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        }
-        mDatabase = FirebaseDatabase.getInstance("https://votingapp-b03ae-default-rtdb.europe-west1.firebasedatabase.app/").getReference();
-
-
-                mDatabase.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                values.clear();
-                vreminja.clear();
-                // CountQuestions = (int) snapshot.getChildrenCount();
-
-                for (DataSnapshot postSnapshot : snapshot.child("Polls").getChildren()) {
-                    vreminja.add(postSnapshot.getValue(Poll.class).getTime());
-                    String mailce = mUser.getEmail();
-                    String[] mailparts = mailce.split("[.]");
-                    mDatabase.child("Locations").child(postSnapshot.getValue(Poll.class).getTitle()).child(mailparts[0]).setValue(location).addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void unused) {
-                            //Toast.makeText(mContext, "DATA IS ADDED", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-
-
-
-                    for(Question prasanje: postSnapshot.getValue(Poll.class).getQuestions())
-                    {
-                        String d = snapshot.child("HasVoted").child(prasanje.getQuestion()).getValue(String.class);
-                        String[] parts = d.split(" ");
-
-                        String d2 = snapshot.child("TimeOut").child(prasanje.getQuestion()).getValue(String.class);
-                        String[] parts2 = d2.split(" ");
-
-                        Integer proveri = 0;
-                        String mail = mUser.getEmail();
-                        for (String part: parts)
-                        {
-                            if(part.equals(mail))
-                            {
-                                proveri = 1;
-                                break;
-                            }
-                        }
-                        for (String part2: parts2)
-                        {
-                            if(part2.equals(mail))
-                            {
-                                proveri = 1;
-                                break;
-                            }
-                        }
-                        if (proveri == 0)
-                        {
-                            values.add(prasanje);
-                        }
-                    }
-
-
-                }
-                mRecyclerView = (RecyclerView) findViewById(R.id.lista);
-                mRecyclerView.setHasFixedSize(true);
-                mRecyclerView.setLayoutManager(new LinearLayoutManager(UserActivity.this));
-                mRecyclerView.setItemAnimator(new DefaultItemAnimator());
-                mAdapter = new myAdapter(values, R.layout.poll_items, UserActivity.this);
-                mRecyclerView.setAdapter(mAdapter);
-
-                for(String tro : vreminja) {
-                    Integer kla = vreminja.indexOf(tro);
-
-                    String[] deloj = tro.split(":");
-                    Integer sekundi = Integer.parseInt(deloj[0]) * 3600 + Integer.parseInt(deloj[1]) * 60 + Integer.parseInt(deloj[2]);
-                    if (!values.isEmpty()){
-                        new CountDownTimer(sekundi * 1000 + 1000, 1000) {
-                            String vnatre = tro;
-                            Integer ks = 0;
-
-                            public void onTick(long millisUntilFinished) {
-                                int seconds = (int) (millisUntilFinished / 1000);
-                                int minutes = seconds / 60;
-                                seconds = seconds % 60;
-                                String pom = naslov.getText().toString();
-                                String[] delojni = pom.split("\n");
-                                if (delojni[0].equals("TIME: 00:00")) {
-                                    ks = ks + 1;
-                                }
-                                if (kla == ks) {
-                                    pom = "TIME: " + String.format("%02d", minutes) + ":" + String.format("%02d", seconds);
-                                } else {
-                                    pom = pom + "\n" + "TIME: " + String.format("%02d", minutes) + ":" + String.format("%02d", seconds);
-                                }
-                                naslov.setText(pom);
-                            }
-
-                            public void onFinish() {
-
-                                for (DataSnapshot snap : snapshot.child("Polls").getChildren()) {
-                                    polls.add(snap.getValue(Poll.class));
-                                }
-                                for (Poll pe : polls) {
-
-                                    if (vnatre.equals(pe.getTime())) {
-                                        List<Question> pres = pe.getQuestions();
-                                        for (int hj = 0; hj < pres.size(); hj++) {
-                                            for (int kj = 0; kj < values.size(); kj++) {
-                                                if (values.get(kj).getQuestion().equals(pres.get(hj).getQuestion())) {
-                                                    Question prasanule = values.get(kj);
-
-                                                    String iminja2 = snapshot.child("TimeOut").child(prasanule.getQuestion()).getValue(String.class);
-                                                    iminja2 = iminja2 + " " + mUser.getEmail();
-
-                                                    mDatabase.child("TimeOut").child(prasanule.getQuestion()).setValue(iminja2).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                        @Override
-                                                        public void onSuccess(Void unused) {
-                                                            //Toast.makeText(mContext, "DATA IS ADDED", Toast.LENGTH_SHORT).show();
-                                                        }
-                                                    });
-
-                                                    values.remove(kj);
-                                                    kj--;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                kRecyclerView = (RecyclerView) findViewById(R.id.lista);
-                                kRecyclerView.setHasFixedSize(true);
-                                kRecyclerView.setLayoutManager(new LinearLayoutManager(UserActivity.this));
-                                kRecyclerView.setItemAnimator(new DefaultItemAnimator());
-                                kAdapter = new myAdapter(values, R.layout.poll_items, UserActivity.this);
-                                kRecyclerView.setAdapter(mAdapter);
-                                // naslov.setText("POLL FINISHED \n");
-                            }
-                        }.start();
-                }
-                    else
-                    {
-                        values.clear();
-                        mAdapter.notifyDataSetChanged();
-                    }
-                }
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-               // Toast.makeText(UserActivity.this, "HELLO" + error.getMessage(), Toast.LENGTH_SHORT).show();
-            }
-
-        });
     }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+
+        if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
     }

@@ -3,11 +3,11 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/landy"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".UserActivity"
     tools:ignore="HardcodedText"
+    android:id="@+id/landy"
     android:background="@drawable/background">
 
     <View
@@ -23,10 +23,16 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <fragment
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_width="359dp"
+        android:layout_height="wrap_content"
         android:id="@+id/fragment1"
         android:name="com.example.votingapp.Uservote"
         tools:layout="@layout/fragment_uservote" />
+    <fragment
+        android:layout_width="364dp"
+        android:layout_height="477dp"
+        android:id="@+id/fragment2"
+        android:name="com.example.votingapp.Userresults"
+        tools:layout="@layout/fragment_userresults" />
 
 </LinearLayout>
