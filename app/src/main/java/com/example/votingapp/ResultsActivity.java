@@ -31,16 +31,6 @@ import java.util.List;
 
 public class ResultsActivity extends AppCompatActivity {
 
-    Poll novo;
-    private DatabaseReference mDatabase;
-    RecyclerView mRecyclerView,kRecyclerView;
-    AdminAdapter mAdapter;
-    FirebaseAuth mAuth;
-    FirebaseUser mUser;
-    List<Question> values;
-    List<String> prasanja;
-    Context context;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
