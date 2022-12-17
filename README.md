@@ -13,7 +13,7 @@ so bilo kolku odgovori za sekoe.
 7. Koga sme zadovolni so brojot na prasanja, so scroll nadolu vnesuvame vremetraenje na poll-ot, i stiskame na kopceto za da se dodade i aktivira glasanjeto.
 8. Pri pritiskanje na kopceto za create, se isprakja notifikacija na site users preku Firebase Messaging Service. Ovaa notifikacija pristignuva bez razlika
 dali aplikacijata e vo foreground ili background (za demonstracija, taa pristignuva i kaj adminot, no toa moze da se smeni po potreba).
-9. Ako se najavime kako user, aplikacijata ne nosi na prasanjata na koi sto moze da glasame, i potoa pocnuva tajmer. Dokolku iscezne tajmerot, prasanjata isceznuvaat.
+9. Ako se najavime kako user(petar@project.com + Petar123, filip@project.com + Filip123), aplikacijata ne nosi na prasanjata na koi sto moze da glasame, i potoa pocnuva tajmer. Dokolku iscezne tajmerot, prasanjata isceznuvaat.
 Dokolku glasame za nekoe prasanje, prasanjeto isceznuva. Pri odnovo pustanje na aplikacijata, ne ni e dozvoleno povtorno da glasame na prasanje, dokolku
 za istoto e ili isteceno vremeto, ili sme glasale vekje za nego.
 10. Dokolku pritisneme na MOI GLASANJA, odime na prikaz za rezultati na prasanja na koi sto vekje sme glasale. Tuka nema da se prikazat prasanja na koi sto ne sme glasale.
